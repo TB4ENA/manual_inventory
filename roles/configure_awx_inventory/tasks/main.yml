@@ -1,0 +1,25 @@
+---
+- name: Build AWX inventory
+  awx.awx.inventory:
+    name: "manual_inventory"
+    organization: "{{ tower_org }}"
+    state: present
+
+- name: Configure inventory source
+  awx.awx.inventory_source:
+    name: "manual_inventory_source"
+    inventory: "manual_inventory"
+    organization: "{{ tower_org }}"
+    overwrite: true
+    overwrite_vars: true
+    update_on_project_update: true
+    source: scm
+    source_project: manual_inventory_main
+    source_path: "inventory_source/inventory.yml"
+    state: present
+
+- name: Update source
+  awx.awx.inventory_source_update:
+    name: "manual_inventory_source"
+    inventory: "manual_inventory"
+    organization: "{{ tower_org }}"

@@ -1,0 +1,8 @@
+---
+- name: Configure manual inventory on AWX
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Import Role
+      import_role:
+        name: configure_awx_inventory

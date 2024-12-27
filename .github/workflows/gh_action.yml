@@ -1,0 +1,41 @@
+name: Commit action
+
+on:
+  push:
+    branches:
+      - '**'
+  workflow_dispatch:
+  delete:
+
+jobs:
+  CI:
+    environment: awx
+    env:
+      TOWER_USERNAME: ${{ secrets.AWX_USER }}
+      TOWER_PASSWORD: ${{ secrets.AWX_TOKEN }}
+      TOWER_VERIFY_SSL: false
+
+    runs-on: ubuntu-latest
+    concurrency: ${{ github.event.ref }}
+    steps:
+      - name: Set environment variables
+        run: |
+          echo "ANSIBLE_HOST_KEY_CHECKING=false" >> $GITHUB_ENV
+          echo "GIT_USERNAME=${{ secrets.GH_USER }}" >> $GITHUB_ENV
+          echo "GIT_PASSWORD=${{ secrets.GH_TOKEN }}" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v3
+
+      - name: Install pip3
+        run: pip3 install -r .github/requirements.txt --force
+
+      - name: Install collections
+        if: github.ref_type == 'branch'
+        run: ansible-galaxy collection install -r .github/collections.yml --force
+
+      - name: Ansible lint
+        run: ansible-lint playbook.yml --exclude vars/ --exclude defaults/ -c .config/ansible-lint.yml
+
+      - name: Run integration
+        if: github.ref_type == 'branch'
+        run: ansible-playbook -i localhost, -vvv .ci/awx.yml -e git_ref=${{ github.event.ref }}

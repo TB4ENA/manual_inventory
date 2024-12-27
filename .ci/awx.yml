@@ -1,0 +1,96 @@
+---
+- hosts: localhost
+  gather_facts: true
+  connection: local
+  vars:
+  #
+    tower_org: tb4ena
+    exe_env: ""
+    scm_cred: "gh_svc_pat"
+    playbook_name: 'playbook.yml'
+    inventory_to_configure: 'demo_inventory'
+    # dev_cred_list:
+    credlist:
+      - cisco_ios
+      - eveng
+    prod_cred_list:
+      - cisco_ios
+      - eveng
+    git_branch: "{{ git_ref | regex_replace('.*heads','') }}"
+    git_repo: "{{ lookup('ansible.builtin.env', 'GITHUB_REPOSITORY') | split('/') | last }}"
+    commit_author: "{{ lookup('ansible.builtin.env', 'GITHUB_ACTOR') }}"
+    commit_sha: "{{ lookup('ansible.builtin.env', 'GITHUB_SHA') }}"
+    git_url: "https://github.com/{{ lookup('ansible.builtin.env', 'GITHUB_REPOSITORY') }}"
+    git_event: "{{ lookup('ansible.builtin.env', 'GITHUB_EVENT_NAME') }}"
+    default_inventory: "Demo Inventory"
+    default_cred: "Demo Credential"
+    default_exe: "Default execution environment"
+    verbosity: 3
+    prod_inventory: "{{ Demo Inventory }}"
+    awx_node: "192.168.203.130:30294"
+
+  tasks:
+    - name: Update variables if main branch
+      set_fact:
+        awx_node: "{{ awx_prod }}"
+        credlist: "{{ prod_cred_list }}"
+        verbosity: 0
+        inventory_to_configure: "{{ prod_inventory }}"
+      when: git_branch | lower == 'main' or git_branch | lower == 'master'
+
+    - name: Configure AWX components
+      when: git_event | lower =='workflow_dispatch' or git_event | lower == 'push'
+      environment:
+        TOWER_HOST: "{{ awx_node }}"
+      block:
+        - name: Create or update project
+          awx.awx.tower_project:
+            name: "{{ git_repo }}_{{ git_branch }}"
+            description: "Commit Author {{ commit_author }} SHA {{ commit_sha }}"
+            organization: "{{ tower_org }}"
+            scm_update_on_launch: false
+            scm_delete_on_update: true
+            credential: "{{ scm_cred }}"
+            scm_type: git
+            scm_url: "{{ git_url }}"
+            scm_branch: "{{ commit_sha }}"
+            timeout: 300
+            default_environment: "{{ exe_env | default(default_exe) }}"
+            wait: true
+            state: present
+
+        - name: Create or update Job template
+          awx.awx.tower_job_template:
+            name: "{{ git_repo }}_{{ git_branch }}"
+            job_type: run
+            organization: "{{ tower_org }}"
+            inventory: "{{ inventory_to_configure | default(default-inventory) }}"
+            project: "{{ git_repo }}_{{ git_branch }}"
+            playbook: "{{playbook_name | default('playbook.yml')}}"
+            credentials: "{{ credlist | default(default_cred)}}"
+            verbosity: "{{ verbosity }}"
+            ask_limit_on_launch: true
+            # ask_inventory_on_launch: true
+            state: present
+            # survey_enabled: true
+            # survey_spec: "{{ lookup('file', 'survey_conf.json') }}"
+            # extra_vars:
+            #   var_1: "{{ value }}"
+            #   var_1: "{{ value }}"
+    - name: AWX cleanup
+      when:
+        - git_event | lower == 'delete'
+        - git_event | lower != 'main'
+        - git_event | lower != 'master'
+      environment:
+        TOWER_HOST: "{{ awx_node }}"
+      block:
+        - name: Delete template
+          awx.awx.tower_job_template:
+            name: "{{ git_repo }}_{{ git_branch }}"
+            state: absent
+
+        - name: Delete project
+          awx.awx.tower_project:
+            name: "{{ git_repo }}_{{ git_branch }}"
+            state: absent

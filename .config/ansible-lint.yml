@@ -1,0 +1,12 @@
+---
+skip_list:
+  - fqcn-builtins
+  - yaml[line-length]
+  - yaml[truthy]
+  - name[template]
+  - var-naming[no-role-prefix]
+
+warn_list:
+  - deprecated-local-action
+  - command-instead-of-shell
+  - experimental

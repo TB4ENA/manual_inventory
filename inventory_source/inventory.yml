@@ -1,0 +1,11 @@
+all:
+  children:
+    routers:
+      hosts:
+        R01: {ansible_host: 192.168.113.131}
+        R02: {ansible_host: 192.168.113.132}
+    switches:
+      hosts:
+        S01: {ansible_host: 192.168.113.133}
+        S02: {ansible_host: 192.168.113.134}
+  vars: {ansible_become: 'yes', ansible_connection: network_cli, ansible_network_os: ios}
