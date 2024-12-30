@@ -11,11 +11,11 @@ jobs:
   CI:
     environment: awx
     env:
-      TOWER_USERNAME: ${{ secrets.AWX_USER }}
-      TOWER_PASSWORD: ${{ secrets.AWX_TOKEN }}
+      TOWER_USERNAME: ${{ secrets.TOWER_USER }}
+      TOWER_PASSWORD: ${{ secrets.TOWER_PASSWORD }}
       TOWER_VERIFY_SSL: false
 
-    runs-on: ubuntu-latest
+    runs-on: awx
     concurrency: ${{ github.event.ref }}
     steps:
       - name: Set environment variables
