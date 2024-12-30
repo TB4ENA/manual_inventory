@@ -15,7 +15,7 @@ jobs:
       TOWER_PASSWORD: ${{ secrets.TOWER_PASSWORD }}
       TOWER_VERIFY_SSL: false
 
-    runs-on: awx
+    runs-on: ubuntu-latest
     concurrency: ${{ github.event.ref }}
     steps:
       - name: Set environment variables
