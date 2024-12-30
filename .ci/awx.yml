@@ -27,7 +27,7 @@
     default_exe: "Default execution environment"
     verbosity: 3
     prod_inventory: "{{ Demo Inventory }}"
-    awx_node: "192.168.203.130:30294"
+    awx_node: "192.168.113.130:30080"
 
   tasks:
     - name: Update variables if main branch
