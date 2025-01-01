@@ -11,31 +11,65 @@ jobs:
   CI:
     environment: awx
     env:
-      TOWER_USERNAME: ${{ secrets.TOWER_USER }}
-      TOWER_PASSWORD: ${{ secrets.TOWER_PASSWORD }}
+      # TOWER_USERNAME: ${{ secrets.TOWER_USERNAME }}
+      # TOWER_PASSWORD: ${{ secrets.TOWER_PASSWORD }}
       TOWER_VERIFY_SSL: false
 
-    runs-on: ubuntu-latest
+    runs-on: awx
     concurrency: ${{ github.event.ref }}
     steps:
-      - name: Set environment variables
-        run: |
-          echo "ANSIBLE_HOST_KEY_CHECKING=false" >> $GITHUB_ENV
-          echo "GIT_USERNAME=${{ secrets.GH_USER }}" >> $GITHUB_ENV
-          echo "GIT_PASSWORD=${{ secrets.GH_TOKEN }}" >> $GITHUB_ENV
+      # - name: Set environment variables
+      #   run: |
+      #     echo "ANSIBLE_HOST_KEY_CHECKING=false" >> $GITHUB_ENV
+      #     echo "GIT_USERNAME=${{ secrets.GH_USER }}" >> $GITHUB_ENV
+      #     echo "GIT_PASSWORD=${{ secrets.GH_TOKEN }}" >> $GITHUB_ENV
 
       - uses: actions/checkout@v3
 
-      - name: Install pip3
-        run: pip3 install -r .github/requirements.txt --force
+      - name: Install Python and pip
+        run: |
+          sudo apt update
+          sudo apt install -y python3-pip python3-venv ansible-lint
+
+      - name: Set up Python Virtual Environment
+        run: |
+          python3 -m venv myenv
+          source myenv/bin/activate
+          pip install -r .github/requirements.txt --force
+
+      # - name: Install pip3
+      #   run: pip3 install -r .github/requirements.txt --force
+
+      - name: Install Python and pip
+        run: |
+          sudo apt update
+          sudo apt install -y ansible
 
       - name: Install collections
         if: github.ref_type == 'branch'
-        run: ansible-galaxy collection install -r .github/collections.yml --force
+        run: |
+          python3 -m venv myenv
+          source myenv/bin/activate
+          ansible-galaxy collection install -r .github/collections.yml --force
 
       - name: Ansible lint
-        run: ansible-lint playbook.yml --exclude vars/ --exclude defaults/ -c .config/ansible-lint.yml
+        run: |
+          python3 -m venv myenv
+          source myenv/bin/activate
+          ansible-lint playbook.yml --exclude vars/ --exclude defaults/ -c .config/ansible-lint.yml
 
       - name: Run integration
         if: github.ref_type == 'branch'
         run: ansible-playbook -i localhost, -vvv .ci/awx.yml -e git_ref=${{ github.event.ref }}
+
+      - name: Set Environment Variables
+        run: |
+          echo "AWX_HOST=awxdev.tb4ena.com" >> $GITHUB_ENV
+          echo "AWX_TOKEN=4Z4XdkU1hxv6u3To5q0ANTSKR9F3Kg" >> $GITHUB_ENV
+    
+      - name: Run Ansible Playbook
+        run: |
+          ansible-playbook -i localhost, -vvv .ci/awx.yml -e git_ref=refs/heads/feature_20241226
+        env:
+          AWX_HOST: ${{ env.AWX_HOST }}
+          AWX_TOKEN: ${{ env.AWX_TOKEN }}

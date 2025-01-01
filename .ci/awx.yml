@@ -5,11 +5,11 @@
   vars:
   #
     tower_org: tb4ena
-    exe_env: ""
+    controller_oauthtoken: '4Z4XdkU1hxv6u3To5q0ANTSKR9F3Kg'
+    exe_env: "AWX EE (latest)"
     scm_cred: "gh_svc_pat"
     playbook_name: 'playbook.yml'
-    inventory_to_configure: 'demo_inventory'
-    # dev_cred_list:
+    inventory_to_configure: 'Demo Inventory'
     credlist:
       - cisco_ios
       - eveng
@@ -27,7 +27,7 @@
     default_exe: "Default execution environment"
     verbosity: 3
     prod_inventory: "{{ Demo Inventory }}"
-    awx_node: "192.168.113.130:30080"
+    awx_node: "awxdev.tb4ena.com"
 
   tasks:
     - name: Update variables if main branch
@@ -50,33 +50,30 @@
             organization: "{{ tower_org }}"
             scm_update_on_launch: false
             scm_delete_on_update: true
-            credential: "{{ scm_cred }}"
             scm_type: git
             scm_url: "{{ git_url }}"
             scm_branch: "{{ commit_sha }}"
-            timeout: 300
+            controller_host: "awxdev.tb4ena.com"
+            controller_oauthtoken: "4Z4XdkU1hxv6u3To5q0ANTSKR9F3Kg"
+            timeout: 600
             default_environment: "{{ exe_env | default(default_exe) }}"
             wait: true
             state: present
 
-        - name: Create or update Job template
+         - name: Create or update Job template
           awx.awx.tower_job_template:
             name: "{{ git_repo }}_{{ git_branch }}"
             job_type: run
             organization: "{{ tower_org }}"
-            inventory: "{{ inventory_to_configure | default(default-inventory) }}"
+            inventory: "{{ inventory_to_configure | default(default_inventory) }}"
             project: "{{ git_repo }}_{{ git_branch }}"
             playbook: "{{playbook_name | default('playbook.yml')}}"
-            credentials: "{{ credlist | default(default_cred)}}"
+            controller_host: "awxdev.tb4ena.com"
+            controller_oauthtoken: "4Z4XdkU1hxv6u3To5q0ANTSKR9F3Kg"
             verbosity: "{{ verbosity }}"
             ask_limit_on_launch: true
-            # ask_inventory_on_launch: true
             state: present
-            # survey_enabled: true
-            # survey_spec: "{{ lookup('file', 'survey_conf.json') }}"
-            # extra_vars:
-            #   var_1: "{{ value }}"
-            #   var_1: "{{ value }}"
+    
     - name: AWX cleanup
       when:
         - git_event | lower == 'delete'
