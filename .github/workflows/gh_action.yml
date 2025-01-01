@@ -15,7 +15,7 @@ jobs:
       # TOWER_PASSWORD: ${{ secrets.TOWER_PASSWORD }}
       TOWER_VERIFY_SSL: false
 
-    runs-on: awxdev
+    runs-on: self-hosted
     concurrency: ${{ github.event.ref }}
     steps:
       # - name: Set environment variables
