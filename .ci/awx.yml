@@ -45,7 +45,7 @@
       block:
         - name: Create or update project
           awx.awx.tower_project:
-            name: "{{ git_repo }}_{{ git_branch }}"
+            name: "{{ git_repo }}"
             description: "Commit Author {{ commit_author }} SHA {{ commit_sha }}"
             organization: "{{ tower_org }}"
             scm_update_on_launch: false
@@ -62,11 +62,11 @@
 
         - name: Create or update Job template
           awx.awx.tower_job_template:
-            name: "{{ git_repo }}_{{ git_branch }}"
+            name: "{{ git_repo }}"
             job_type: run
             organization: "{{ tower_org }}"
             inventory: "{{ inventory_to_configure | default(default_inventory) }}"
-            project: "{{ git_repo }}_{{ git_branch }}"
+            project: "{{ git_repo }}"
             playbook: "{{playbook_name | default('playbook.yml')}}"
             controller_host: "awxdev.tb4ena.com"
             controller_oauthtoken: "4Z4XdkU1hxv6u3To5q0ANTSKR9F3Kg"
@@ -84,10 +84,10 @@
       block:
         - name: Delete template
           awx.awx.tower_job_template:
-            name: "{{ git_repo }}_{{ git_branch }}"
+            name: "{{ git_repo }}"
             state: absent
 
         - name: Delete project
           awx.awx.tower_project:
-            name: "{{ git_repo }}_{{ git_branch }}"
+            name: "{{ git_repo }}"
             state: absent
