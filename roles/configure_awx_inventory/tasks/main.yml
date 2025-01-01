@@ -2,14 +2,14 @@
 - name: Build AWX inventory
   awx.awx.inventory:
     name: "manual_inventory"
-    organization: "{{ tower_org }}"
+    organization: tb4ena
     state: present
 
 - name: Configure inventory source
   awx.awx.inventory_source:
     name: "manual_inventory_source"
     inventory: "manual_inventory"
-    organization: "{{ tower_org }}"
+    organization: tb4ena
     overwrite: true
     overwrite_vars: true
     update_on_project_update: true
@@ -22,4 +22,4 @@
   awx.awx.inventory_source_update:
     name: "manual_inventory_source"
     inventory: "manual_inventory"
-    organization: "{{ tower_org }}"
+    organization: tb4ena
