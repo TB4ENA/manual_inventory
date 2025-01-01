@@ -22,7 +22,7 @@
     overwrite_vars: true
     update_on_launch: true
     source: scm
-    source_project: manual_inventory_main
+    source_project: manual_inventory
     source_path: "inventory_source/inventory.yml"
     state: present
 
