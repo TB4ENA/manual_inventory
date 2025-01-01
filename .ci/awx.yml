@@ -26,7 +26,7 @@
     default_cred: "Demo Credential"
     default_exe: "Default execution environment"
     verbosity: 3
-    prod_inventory: "{{ Demo Inventory }}"
+    prod_inventory: "{{ inventory_to_configurey }}"
     awx_node: "awxdev.tb4ena.com"
 
   tasks:
@@ -35,7 +35,7 @@
         awx_node: "{{ awx_prod }}"
         credlist: "{{ prod_cred_list }}"
         verbosity: 0
-        inventory_to_configure: "{{ prod_inventory }}"
+        inventory_to_configure: "{{ inventory_to_configure }}"
       when: git_branch | lower == 'main' or git_branch | lower == 'master'
 
     - name: Configure AWX components
