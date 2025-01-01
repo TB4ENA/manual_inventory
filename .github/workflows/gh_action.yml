@@ -69,7 +69,7 @@ jobs:
     
       - name: Run Ansible Playbook
         run: |
-          ansible-playbook -i localhost, -vvv .ci/awx.yml -e git_ref=refs/heads/feature_20241226
+          ansible-playbook -i localhost, -vvv .ci/awx.yml -e git_ref=refs/heads/main
         env:
           AWX_HOST: ${{ env.AWX_HOST }}
           AWX_TOKEN: ${{ env.AWX_TOKEN }}
