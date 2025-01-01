@@ -60,19 +60,19 @@
             wait: true
             state: present
 
-         - name: Create or update Job template
-            awx.awx.tower_job_template:
-              name: "{{ git_repo }}_{{ git_branch }}"
-              job_type: run
-              organization: "{{ tower_org }}"
-              inventory: "{{ inventory_to_configure | default(default_inventory) }}"
-              project: "{{ git_repo }}_{{ git_branch }}"
-              playbook: "{{playbook_name | default('playbook.yml')}}"
-              controller_host: "awxdev.tb4ena.com"
-              controller_oauthtoken: "4Z4XdkU1hxv6u3To5q0ANTSKR9F3Kg"
-              verbosity: "{{ verbosity }}"
-              ask_limit_on_launch: true
-              state: present
+        - name: Create or update Job template
+          awx.awx.tower_job_template:
+            name: "{{ git_repo }}_{{ git_branch }}"
+            job_type: run
+            organization: "{{ tower_org }}"
+            inventory: "{{ inventory_to_configure | default(default_inventory) }}"
+            project: "{{ git_repo }}_{{ git_branch }}"
+            playbook: "{{playbook_name | default('playbook.yml')}}"
+            controller_host: "awxdev.tb4ena.com"
+            controller_oauthtoken: "4Z4XdkU1hxv6u3To5q0ANTSKR9F3Kg"
+            verbosity: "{{ verbosity }}"
+            ask_limit_on_launch: true
+            state: present
     
     - name: AWX cleanup
       when:
