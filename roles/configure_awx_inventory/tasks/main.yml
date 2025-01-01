@@ -3,6 +3,9 @@
   awx.awx.inventory:
     name: "manual_inventory"
     organization: tb4ena
+    controller_host: "awxdev.tb4ena.com"
+    controller_username: "awxuser"
+    controller_oauthtoken: "4Z4XdkU1hxv6u3To5q0ANTSKR9F3Kg"
     state: present
 
 - name: Configure inventory source
@@ -10,6 +13,9 @@
     name: "manual_inventory_source"
     inventory: "manual_inventory"
     organization: tb4ena
+    controller_host: "awxdev.tb4ena.com"
+    controller_username: "awxuser"
+    controller_oauthtoken: "4Z4XdkU1hxv6u3To5q0ANTSKR9F3Kg"
     overwrite: true
     overwrite_vars: true
     update_on_project_update: true
@@ -23,3 +29,6 @@
     name: "manual_inventory_source"
     inventory: "manual_inventory"
     organization: tb4ena
+    controller_host: "awxdev.tb4ena.com"
+    controller_username: "awxuser"
+    controller_oauthtoken: "4Z4XdkU1hxv6u3To5q0ANTSKR9F3Kg"
